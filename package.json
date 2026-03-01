@@ -1,0 +1,51 @@
+{
+    "name": "webext-bridge",
+    "version": "0.1.0",
+    "description": "Type-safe cross-context messaging for Chrome extensions — popup ↔ background ↔ content script communication with channels, request/response patterns, and streaming.",
+    "author": "Zovo <hello@zovo.one>",
+    "license": "MIT",
+    "keywords": [
+        "chrome-extension",
+        "messaging",
+        "message-passing",
+        "chrome-runtime",
+        "sendMessage",
+        "cross-context",
+        "popup",
+        "background",
+        "content-script",
+        "manifest-v3",
+        "browser-extension",
+        "bridge",
+        "ipc"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/theluckystrike/webext-bridge.git"
+    },
+    "homepage": "https://github.com/theluckystrike/webext-bridge",
+    "main": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "files": [
+        "dist",
+        "README.md",
+        "LICENSE"
+    ],
+    "scripts": {
+        "build": "tsc",
+        "dev": "tsc --watch",
+        "test": "jest",
+        "lint": "eslint src --ext .ts",
+        "prepublishOnly": "npm run build"
+    },
+    "devDependencies": {
+        "@types/chrome": "^0.0.260",
+        "@types/jest": "^29.5.12",
+        "@typescript-eslint/eslint-plugin": "^6.19.1",
+        "@typescript-eslint/parser": "^6.19.1",
+        "eslint": "^8.56.0",
+        "jest": "^29.7.0",
+        "ts-jest": "^29.1.2",
+        "typescript": "^5.3.3"
+    }
+}
