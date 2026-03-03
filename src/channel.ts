@@ -42,10 +42,38 @@ export class Channel {
         chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             if (message?.channel !== this.name) return false;
             const handler = this.handlers.get(message.action);
-            if (!handler) return false;
-            const result = handler(message.data, sender);
-            if (result instanceof Promise) { result.then(sendResponse); return true; }
-            sendResponse(result);
+            
+            if (!handler) {
+                const availableActions = Array.from(this.handlers.keys()).join(', ');
+                const suggestion = availableActions
+                    ? `\n\nAvailable actions: ${availableActions}`
+                    : '\n\nNo actions have been registered yet.';
+                sendResponse({ 
+                    __channelError: `Unknown action: '${message.action}' on channel '${this.name}'${suggestion}` 
+                });
+                return false;
+            }
+
+            try {
+                const result = handler(message.data, sender);
+                if (result instanceof Promise) {
+                    result
+                        .then(sendResponse)
+                        .catch((error) => {
+                            const errMsg = error instanceof Error 
+                                ? `${error.name}: ${error.message}\nStack: ${error.stack}`
+                                : String(error);
+                            sendResponse({ __channelError: errMsg });
+                        });
+                    return true;
+                }
+                sendResponse(result);
+            } catch (error) {
+                const errMsg = error instanceof Error 
+                    ? `${error.name}: ${error.message}\nStack: ${error.stack}`
+                    : String(error);
+                sendResponse({ __channelError: errMsg });
+            }
             return false;
         });
     }

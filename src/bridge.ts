@@ -82,15 +82,26 @@ export class Bridge {
             if (message.target && message.target !== this.context) return false;
 
             const handler = this.handlers.get(message.type);
-            if (!handler) return false;
-
-            const result = handler(message.data, sender);
-            if (result instanceof Promise) {
-                result.then(sendResponse).catch(() => sendResponse(undefined));
-                return true; // Keep channel open for async
+            if (!handler) {
+                console.warn(`[webext-bridge] No handler registered for message type: ${message.type}`);
+                return false;
             }
 
-            sendResponse(result);
+            try {
+                const result = handler(message.data, sender);
+                if (result instanceof Promise) {
+                    result.then(sendResponse).catch((error) => {
+                        console.error(`[webext-bridge] Error in handler for ${message.type}:`, error);
+                        sendResponse({ __webextBridgeError: error instanceof Error ? error.message : String(error) });
+                    });
+                    return true; // Keep channel open for async
+                }
+
+                sendResponse(result);
+            } catch (error) {
+                console.error(`[webext-bridge] Error in handler for ${message.type}:`, error);
+                sendResponse({ __webextBridgeError: error instanceof Error ? error.message : String(error) });
+            }
             return false;
         });
     }
